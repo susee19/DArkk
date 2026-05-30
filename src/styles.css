@@ -1,324 +1,90 @@
 *{
+    margin:0;
+    padding:0;
     box-sizing:border-box;
 }
-html,body{
-    margin:0;
+
+html, body{
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#000;
-    font-family:"Metal Mania", cursive;
+    font-family: Arial, Helvetica, sans-serif;
 }
-#hud{
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    z-index:20;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-    padding:12px 16px;
-    background:rgba(10,10,16,0.78);
-    color:#fff;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(8px);
+
+body{
+    background-image:url("../assets/Dark.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
 }
-#hud > div{
-    padding:6px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.06);
-    font-weight:700;
-    white-space:nowrap;
-}
-#storeBtn{
-    font-family:"Metal Mania", cursive;
-    margin-left:auto;
-    padding:6px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.06);
-    font-weight:700;
-    white-space:nowrap;
-    color:#fff;
-    cursor:pointer;
-}
-#storeBtn:hover{
-    background:rgba(255,255,255,0.14);
-}
-#store{
-    position:fixed;
-    top:68px;
-    right:16px;
-    width:min(320px,calc(100vw - 32px));
-    z-index:30;
-    padding:14px;
-    border-radius:16px;
-    background:rgba(10,10,16,0.84);
-    color:#fff;
-    border:1px solid rgba(255,255,255,0.08);
-    box-shadow:0 14px 40px rgba(0,0,0,0.38);
-    backdrop-filter:blur(10px);
-}
-.hidden{
-    display:none;
-}
-.store-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:12px;
-}
-.store-title{
-    font-size:18px;
-    font-weight:800;
-}
-#closeStore{
-    border:0;
-    width:32px;
-    height:32px;
-    border-radius:10px;
-    cursor:pointer;
-    background:rgba(255,255,255,0.08);
-    color:#fff;
-    font-size:18px;
-}
-#closeStore:hover{
-    background:rgba(255,255,255,0.14);
-}
-.store-item{
-    font-family:"Metal Mania", cursive;
-    width:100%;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:12px;
-    border:0;
-    border-radius:14px;
-    background:rgba(255,255,255,0.08);
-    color:#fff;
-    cursor:pointer;
-    text-align:left;
-    transition:0.15s ease;
-    margin-bottom:10px;
-}
-.store-item:hover{
-    background:rgba(255,255,255,0.14);
-    transform:translateY(-1px);
-}
-.icon{
-    width:36px;
-    height:36px;
-    flex:0 0 36px;
-    display:grid;
-    place-items:center;
-    color:#fff100;
-}
-.icon svg{
-    width:32px;
-    height:32px;
-    display:block;
-    fill:currentColor;
-}
-.text{
-    font-family:"Metal Mania", cursive;
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-}
-.name{
-    font-family:"Metal Mania", cursive;
-    font-weight:800;
-    font-size:14px;
-    line-height:1.2;
-}
-.price{
-    font-family:"Metal Mania", cursive;
-    font-size:12px;
-    opacity:0.8;
-}
-.note{
-    font-family:"Metal Mania", cursive;
-    margin-top:8px;
-    font-size:12px;
-    line-height:1.5;
-    opacity:0.8;
-}
-#canvas{
-    display:block;
-    width:100vw;
-    height:100vh;
-    background:#000;
-}
-.popup{
-    
+
+.overlay{
     position:fixed;
     inset:0;
-    z-index:9999;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.78) 100%),
+        radial-gradient(circle at top, rgba(255,0,0,0.10), transparent 35%);
+}
 
+.home{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
-
-    backdrop-filter:blur(12px);
-    background:rgba(0,0,0,0.45);
-}
-
-.popup.hidden{
-    display:none;
-}
-
-.popup-card{
-    width:320px;
-    max-width:90vw;
-
-    background:rgba(15,15,20,0.9);
-    border:1px solid rgba(255,255,255,0.1);
-
-    border-radius:20px;
-    padding:25px;
-
+    gap:34px;
     text-align:center;
-    color:white;
-
-    box-shadow:0 0 30px rgba(0,0,0,0.4);
 }
 
-.popup-card h1{
-    margin:0 0 15px;
-}
-
-.popup-card p{
-    font-size:18px;
-    margin-bottom:20px;
-}
-
-.popup-buttons{
-    display:flex;
-    gap:10px;
-}
-
-.popup-buttons button{
-    flex:1;
-
-    padding:12px;
-
-    border:none;
-    border-radius:12px;
-
-    cursor:pointer;
-
-    font-weight:bold;
-    font-size:15px;
-}
-
-#restartBtn{
+h1{
     font-family:"Metal Mania", cursive;
-    background:#4caf50;
-    color:white;
+    font-size: clamp(250px, 12vw, 180px);
+    font-weight: 200;
+    letter-spacing: 6px;
+    color: rgba(198, 19, 19, 0.922);
+    text-shadow:
+        0 0 10px rgba(255,255,255,0.2),
+        0 0 25px rgba(255,0,0,0.35),
+        0 0 60px rgba(255,0,0,0.15);
+    user-select:none;
+    animation: flicker 4s infinite;
 }
 
-#exitBtn{
+#startBtn{
     font-family:"Metal Mania", cursive;
-    background:#e53935;
-    color:white;
-}
-#questsBtn{
-    margin-left: 8px;
-    padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-#questsBtn:hover{
-    background: rgba(255,255,255,0.14);
-}
-
-#questsPanel{
-    position: fixed;
-    top: 68px;
-    right: 16px;
-    width: min(340px, calc(100vw - 32px));
-    z-index: 40;
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(10,10,16,0.84);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.38);
-    backdrop-filter: blur(10px);
-}
-
-.panel-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:12px;
-}
-
-.panel-title{
-    font-size:18px;
-    font-weight:800;
-}
-
-#closeQuests{
-    border:0;
-    width:32px;
-    height:32px;
-    border-radius:10px;
-    cursor:pointer;
-    background:rgba(255,255,255,0.08);
-    color:#fff;
-    font-size:18px;
-}
-
-#closeQuests:hover{
-    background:rgba(255,255,255,0.14);
-}
-
-.quest-item{
-    padding:12px;
-    border-radius:14px;
-    background:rgba(255,255,255,0.08);
-    margin-bottom:10px;
-}
-
-.quest-name{
-    font-weight:800;
-    font-size:14px;
-    margin-bottom:4px;
-}
-.quest-reward{
-    font-size:12px;
-    opacity:0.8;
-    margin-bottom:6px;
-}
-.quest-progress{
-    font-size:12px;
-    color:#fff7a8;
-}
-.quest-toast{
-    position: fixed;
-    left: 50%;
-    bottom: 28px;
-    transform: translateX(-50%);
-    z-index: 9999;
-    padding: 12px 18px;
-    border-radius: 14px;
-    background: rgba(10,10,16,0.92);
-    border: 1px solid rgba(255,255,255,0.1);
+    padding: 18px 54px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 22px;
+    background: rgba(18,18,18,0.72);
     color: white;
+    font-size: 22px;
     font-weight: 800;
-    box-shadow: 0 14px 40px rgba(0,0,0,0.4);
+    letter-spacing: 4px;
+    cursor: pointer;
     backdrop-filter: blur(10px);
+    box-shadow:
+        0 0 18px rgba(0,0,0,0.45),
+        0 0 22px rgba(255,0,0,0.12);
+    transition: 0.2s ease;
 }
 
-.hidden{
-    display:none;
+#startBtn:hover{
+    transform: scale(1.05);
+    background: rgba(90,0,0,0.78);
+    box-shadow:
+        0 0 24px rgba(255,0,0,0.28),
+        0 0 38px rgba(0,0,0,0.55);
+}
+
+#startBtn:active{
+    transform: scale(0.98);
+}
+
+@keyframes flicker{
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.72; }
 }
