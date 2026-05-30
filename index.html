@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DArk</title>
+    <link rel="stylesheet" href="src/styles1.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="home">
+        <h1>DArk</h1>
+        <button id="startBtn">Start Game</button>
+    </div>
+
+    <script>
+    const music = new Audio("./horror.mp3");
+    const startBtn = document.getElementById("startBtn");
+    const clickMusic = new Audio("./abc.mp3");
+
+    music.loop = true;
+    music.volume = 0.75;
+    clickMusic.volume = 1.0;
+    clickMusic.preload = "auto";
+
+    document.body.addEventListener("click", () => {
+        music.play().catch(() => {});
+    }, { once: true });
+
+    startBtn.addEventListener("click", () => {
+        clickMusic.currentTime = 0;
+        clickMusic.play().catch(() => {});
+
+        setTimeout(() => {
+            window.location.href = "page1.html";
+        }, 500);
+    });
+</script>
+</body>
+</html>
