@@ -27,67 +27,6 @@ const shootSound = new Audio("./assets/Shoot.mp3");
 const ambientMusic = new Audio("./assets/Omnious.mp3");
 const bombSound = new Audio("./assets/Bomb.mp3");
 
-const ROOM_SIZE = 110;
-const GAP = 55;
-const HUD_HEIGHT = 120;
-const WORLD_STEP = ROOM_SIZE + GAP;
-const WORLD_START_X = 80;
-const WORLD_START_Y = HUD_HEIGHT + 35;
-const MAX_BULLETS = 220;
-const SHOOT_COOLDOWN = 700;
-const BULLET_SPEED = 8;
-const BULLET_RADIUS = 4;
-const PLAYER_RADIUS = 7;
-const PLAYER_SPEED = 5;
-const PLAYER_START_HEALTH = 200;
-const ENEMY_RADIUS = 7;
-const DOOR_PAD = 25;
-const DOOR_HALF = 40;
-const DASH_SPEED = 8.5;
-const DASH_DURATION = 250;
-const RETREAT_DURATION = 1000;
-const DASH_COOLDOWN = 1000;
-const SNIPER_BULLET_SPEED = 3.0;
-const VIOLET_BOMB_RADIUS = 70;
-const VIOLET_BOMB_DAMAGE = 50;
-const EXPLOSION_LIFE = 24;
-const TORCH_RADIUS = 180;
-const TORCH_ANGLE = 0.4;
-const CLOAKED_VISIBLE_DIST = 180;
-const CLOAKED_VISIBLE_ANGLE = 0.4;
-const WANDER_CHANGE_MIN = 700;
-const WANDER_CHANGE_MAX = 1600;
-const STOP_DISTANCE_DEFAULT = 60;
-const STOP_DISTANCE_DASH = 42;
-const WALL_NEAR_THRESHOLD = 14;
-const WALL_FACTOR_NEAR = 0.7;
-const RECOIL_FACTOR_ACTIVE = 0.35;
-const RECOIL_MS = 400;
-const SPEED_BOOST_DURATION = 20000;
-const INVIS_DURATION = 12000;
-const LOOT_NO_DMG_BONUS = 50;
-const LOOT_ROOM_KILL_BONUS = 50;
-const LOOT_DASH_KILL_BONUS = 100;
-const SCORE_KILL = 100;
-const SCORE_STREAK_BONUS = 50;
-const SCORE_ROOM_KILL_BONUS = 50;
-const SCORE_DASH_KILL_BONUS = 100;
-const QUEST_TOAST_DURATION = 2000;
-const CAMERA_OFFSET_X = 0.35;
-const CAMERA_OFFSET_Y = 0.35;
-const BUFFER_COLS = 2;
-const BUFFER_ROWS = 2;
-const INITIAL_WORLD_COLS = 4;
-const INITIAL_WORLD_ROWS = 4;
-const ENEMY_BOUNCE_LIMIT = 2;
-const HALO_EXTRA = 10;
-const STORE_COST_SPEED = 50;
-const STORE_COST_HP = 100;
-const STORE_COST_DAMAGE = 150;
-const STORE_COST_INVIS = 200;
-const HP_BOOST_AMOUNT = 100;
-const DAMAGE_BOOST_SHOTS = 3;
-
 const ENEMY_TYPES = {
     normal: {
         hp: 2,
@@ -128,7 +67,7 @@ const ENEMY_TYPES = {
         moveSpeed: 1,
         visionRange: 1200,
         shootCooldown: 1800,
-        bulletSpeed: SNIPER_BULLET_SPEED,
+        bulletSpeed: 3.0,
         damage: 100,
         canShoot: true,
         visibleRange: 9999
@@ -174,11 +113,11 @@ let generatedRoomKeys = new Set();
 
 let player = {
     x: 20,
-    y: HUD_HEIGHT + 20,
-    radius: PLAYER_RADIUS,
-    speed: PLAYER_SPEED,
-    health: PLAYER_START_HEALTH,
-    maxHealth: PLAYER_START_HEALTH
+    y: 120 + 20,      // HUD_HEIGHT(120) + 20
+    radius: 7,         // PLAYER_RADIUS
+    speed: 5,          // PLAYER_SPEED
+    health: 100,       // PLAYER_START_HEALTH
+    maxHealth: 100     // PLAYER_START_HEALTH
 };
 
 mouse.x = player.x;
@@ -250,19 +189,19 @@ function makeEnemy(type) {
     const angle = Math.random() * Math.PI * 2;
     return {
         type,
-        x: Math.random() * (ROOM_SIZE - 40) + 20,
-        y: Math.random() * (ROOM_SIZE - 40) + 20,
-        radius: ENEMY_RADIUS,
+        x: Math.random() * (110 - 40) + 20,   // ROOM_SIZE(110)
+        y: Math.random() * (110 - 40) + 20,   // ROOM_SIZE(110)
+        radius: 7,                              // ENEMY_RADIUS
         health: cfg.hp,
         maxHealth: cfg.hp,
         dead: false,
         vx: Math.cos(angle) * cfg.moveSpeed,
         vy: Math.sin(angle) * cfg.moveSpeed,
-        nextWanderChange: Date.now() + randRange(WANDER_CHANGE_MIN, WANDER_CHANGE_MAX),
+        nextWanderChange: Date.now() + randRange(700, 1600),  // WANDER_CHANGE_MIN(700), WANDER_CHANGE_MAX(1600)
         shootCooldown: cfg.shootCooldown,
         lastShotTime: 0,
         shotRecoilUntil: 0,
-        shotRecoilMs: RECOIL_MS,
+        shotRecoilMs: 400,                      // RECOIL_MS
         alerted: false,
         dashing: false,
         dashUntil: 0,
@@ -270,8 +209,8 @@ function makeEnemy(type) {
         retreating: false,
         retreatUntil: 0,
         visibleRange: cfg.visibleRange || 9999,
-        bombRadius: type === "violet" ? VIOLET_BOMB_RADIUS : 0,
-        bombDamage: type === "violet" ? VIOLET_BOMB_DAMAGE : 0
+        bombRadius: type === "violet" ? 70 : 0,    // VIOLET_BOMB_RADIUS(70)
+        bombDamage: type === "violet" ? 50 : 0     // VIOLET_BOMB_DAMAGE(50)
     };
 }
 
@@ -283,10 +222,10 @@ function createRoom(col, row) {
     const hasLoot = Math.random() < 0.3;
     const type = pickEnemyType();
     return {
-        x: WORLD_START_X + col * WORLD_STEP,
-        y: WORLD_START_Y + row * WORLD_STEP,
-        width: ROOM_SIZE,
-        height: ROOM_SIZE,
+        x: 80 + col * (110 + 55),     // WORLD_START_X(80), ROOM_SIZE(110), GAP(55) => WORLD_STEP=165
+        y: 155 + row * (110 + 55),    // WORLD_START_Y = HUD_HEIGHT(120)+35=155, WORLD_STEP=165
+        width: 110,                    // ROOM_SIZE
+        height: 110,                   // ROOM_SIZE
         doorSide: randChoice(["top", "bottom", "left", "right"]),
         lockable: hasLoot,
         lockActive: false,
@@ -312,21 +251,21 @@ function generateRooms() {
     generatedRoomKeys.clear();
     worldCols = 0;
     worldRows = 0;
-    for (let row = 0; row < INITIAL_WORLD_ROWS; row++) {
-        for (let col = 0; col < INITIAL_WORLD_COLS; col++) {
+    for (let row = 0; row < 4; row++) {        // INITIAL_WORLD_ROWS(4)
+        for (let col = 0; col < 4; col++) {    // INITIAL_WORLD_COLS(4)
             addRoom(col, row);
         }
     }
-    worldCols = INITIAL_WORLD_COLS;
-    worldRows = INITIAL_WORLD_ROWS;
+    worldCols = 4;   // INITIAL_WORLD_COLS
+    worldRows = 4;   // INITIAL_WORLD_ROWS
     updateCamera();
 }
 
 function ensureInfiniteRooms() {
-    const visibleRight = cameraX + canvas.width + WORLD_STEP * BUFFER_COLS;
-    const visibleBottom = cameraY + canvas.height + WORLD_STEP * BUFFER_ROWS;
-    const neededCols = Math.max(worldCols, Math.ceil((visibleRight - WORLD_START_X) / WORLD_STEP) + 1);
-    const neededRows = Math.max(worldRows, Math.ceil((visibleBottom - WORLD_START_Y) / WORLD_STEP) + 1);
+    const visibleRight = cameraX + canvas.width + (110 + 55) * 2;    // WORLD_STEP(165) * BUFFER_COLS(2)
+    const visibleBottom = cameraY + canvas.height + (110 + 55) * 2;  // WORLD_STEP(165) * BUFFER_ROWS(2)
+    const neededCols = Math.max(worldCols, Math.ceil((visibleRight - 80) / (110 + 55)) + 1);   // WORLD_START_X(80), WORLD_STEP(165)
+    const neededRows = Math.max(worldRows, Math.ceil((visibleBottom - 155) / (110 + 55)) + 1); // WORLD_START_Y(155), WORLD_STEP(165)
     if (neededCols > worldCols) {
         for (let row = 0; row < worldRows; row++) {
             for (let col = worldCols; col < neededCols; col++) {
@@ -346,8 +285,8 @@ function ensureInfiniteRooms() {
 }
 
 function updateCamera() {
-    cameraX = Math.max(0, player.x - canvas.width * CAMERA_OFFSET_X);
-    cameraY = Math.max(0, player.y - canvas.height * CAMERA_OFFSET_Y);
+    cameraX = Math.max(0, player.x - canvas.width * 0.35);   // CAMERA_OFFSET_X(0.35)
+    cameraY = Math.max(0, player.y - canvas.height * 0.35);  // CAMERA_OFFSET_Y(0.35)
 }
 
 function getEnemyCenter(room) {
@@ -373,7 +312,8 @@ function isEnemyVisible(room) {
     const torchAngle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
     const angleToEnemy = Math.atan2(ey - player.y, ex - player.x);
     const dist = Math.hypot(ex - player.x, ey - player.y);
-    return dist <= CLOAKED_VISIBLE_DIST && Math.abs(angleDifference(angleToEnemy, torchAngle)) <= CLOAKED_VISIBLE_ANGLE;
+    return dist <= 180 && Math.abs(angleDifference(angleToEnemy, torchAngle)) <= 0.4;
+    // CLOAKED_VISIBLE_DIST(180), CLOAKED_VISIBLE_ANGLE(0.4)
 }
 
 function bulletTouchesRoomPath(bullet, room) {
@@ -412,7 +352,8 @@ function resolveBulletAgainstRoom(bullet, room) {
         (bullet.prevY + bullet.radius > bottom && bullet.y + bullet.radius <= bottom);
     if (crossedLeft) {
         const yCross = dx === 0 ? bullet.y : bullet.prevY + ((left - bullet.prevX) / dx) * dy;
-        const canPass = doorsOpen && room.doorSide === "left" && yCross > room.y + room.height / 2 - DOOR_HALF && yCross < room.y + room.height / 2 + DOOR_HALF;
+        const canPass = doorsOpen && room.doorSide === "left" && yCross > room.y + room.height / 2 - 40 && yCross < room.y + room.height / 2 + 40;
+        // DOOR_HALF(40)
         if (!canPass) {
             bullet.vx *= -1;
             bullet.bouncedThisFrame = true;
@@ -424,7 +365,8 @@ function resolveBulletAgainstRoom(bullet, room) {
     }
     if (!bullet.bouncedThisFrame && crossedRight) {
         const yCross = dx === 0 ? bullet.y : bullet.prevY + ((right - bullet.prevX) / dx) * dy;
-        const canPass = doorsOpen && room.doorSide === "right" && yCross > room.y + room.height / 2 - DOOR_HALF && yCross < room.y + room.height / 2 + DOOR_HALF;
+        const canPass = doorsOpen && room.doorSide === "right" && yCross > room.y + room.height / 2 - 40 && yCross < room.y + room.height / 2 + 40;
+        // DOOR_HALF(40)
         if (!canPass) {
             bullet.vx *= -1;
             bullet.bouncedThisFrame = true;
@@ -436,7 +378,8 @@ function resolveBulletAgainstRoom(bullet, room) {
     }
     if (!bullet.bouncedThisFrame && crossedTop) {
         const xCross = dy === 0 ? bullet.x : bullet.prevX + ((top - bullet.prevY) / dy) * dx;
-        const canPass = doorsOpen && room.doorSide === "top" && xCross > room.x + room.width / 2 - DOOR_HALF && xCross < room.x + room.width / 2 + DOOR_HALF;
+        const canPass = doorsOpen && room.doorSide === "top" && xCross > room.x + room.width / 2 - 40 && xCross < room.x + room.width / 2 + 40;
+        // DOOR_HALF(40)
         if (!canPass) {
             bullet.vy *= -1;
             bullet.bouncedThisFrame = true;
@@ -448,7 +391,8 @@ function resolveBulletAgainstRoom(bullet, room) {
     }
     if (!bullet.bouncedThisFrame && crossedBottom) {
         const xCross = dy === 0 ? bullet.x : bullet.prevX + ((bottom - bullet.prevY) / dy) * dx;
-        const canPass = doorsOpen && room.doorSide === "bottom" && xCross > room.x + room.width / 2 - DOOR_HALF && xCross < room.x + room.width / 2 + DOOR_HALF;
+        const canPass = doorsOpen && room.doorSide === "bottom" && xCross > room.x + room.width / 2 - 40 && xCross < room.x + room.width / 2 + 40;
+        // DOOR_HALF(40)
         if (!canPass) {
             bullet.vy *= -1;
             bullet.bouncedThisFrame = true;
@@ -470,24 +414,24 @@ function canEnemySeePlayer(room, tx, ty) {
     const midX = room.x + room.width / 2;
     const midY = room.y + room.height / 2;
     if (room.doorSide === "left") {
-        return tx < room.x && ty > midY - DOOR_HALF && ty < midY + DOOR_HALF;
+        return tx < room.x && ty > midY - 40 && ty < midY + 40;       // DOOR_HALF(40)
     }
     if (room.doorSide === "right") {
-        return tx > room.x + room.width && ty > midY - DOOR_HALF && ty < midY + DOOR_HALF;
+        return tx > room.x + room.width && ty > midY - 40 && ty < midY + 40;  // DOOR_HALF(40)
     }
     if (room.doorSide === "top") {
-        return ty < room.y && tx > midX - DOOR_HALF && tx < midX + DOOR_HALF;
+        return ty < room.y && tx > midX - 40 && tx < midX + 40;       // DOOR_HALF(40)
     }
     if (room.doorSide === "bottom") {
-        return ty > room.y + room.height && tx > midX - DOOR_HALF && tx < midX + DOOR_HALF;
+        return ty > room.y + room.height && tx > midX - 40 && tx < midX + 40; // DOOR_HALF(40)
     }
     return false;
 }
 
 function updateEnemyWander(room, enemy, cfg, now) {
-    const recoilFactor = now < enemy.shotRecoilUntil ? RECOIL_FACTOR_ACTIVE : 1;
+    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   // RECOIL_FACTOR_ACTIVE(0.35)
     if (now >= enemy.nextWanderChange) {
-        enemy.nextWanderChange = now + randRange(WANDER_CHANGE_MIN, WANDER_CHANGE_MAX);
+        enemy.nextWanderChange = now + randRange(700, 1600);         // WANDER_CHANGE_MIN(700), WANDER_CHANGE_MAX(1600)
         const ang = Math.random() * Math.PI * 2;
         enemy.vx = Math.cos(ang) * cfg.moveSpeed;
         enemy.vy = Math.sin(ang) * cfg.moveSpeed;
@@ -497,7 +441,7 @@ function updateEnemyWander(room, enemy, cfg, now) {
 }
 
 function updateEnemyChase(room, enemy, cfg, now) {
-    const recoilFactor = now < enemy.shotRecoilUntil ? RECOIL_FACTOR_ACTIVE : 1;
+    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   // RECOIL_FACTOR_ACTIVE(0.35)
     const { x: ex, y: ey } = getEnemyCenter(room);
     const dx = player.x - ex;
     const dy = player.y - ey;
@@ -517,19 +461,19 @@ function updateEnemyChase(room, enemy, cfg, now) {
             enemy.y += (awayY / awayDist) * 4.5;
             if (now >= enemy.retreatUntil) {
                 enemy.retreating = false;
-                enemy.nextDashAt = now + DASH_COOLDOWN;
+                enemy.nextDashAt = now + 1000;   // DASH_COOLDOWN(1000)
             }
             return;
         }
         if (!enemy.dashing && now >= enemy.nextDashAt) {
             enemy.dashing = true;
-            enemy.dashUntil = now + DASH_DURATION;
+            enemy.dashUntil = now + 250;          // DASH_DURATION(250)
             enemy.dashDirX = dx / dist;
             enemy.dashDirY = dy / dist;
         }
         if (enemy.dashing) {
-            enemy.x += enemy.dashDirX * DASH_SPEED;
-            enemy.y += enemy.dashDirY * DASH_SPEED;
+            enemy.x += enemy.dashDirX * 8.5;     // DASH_SPEED(8.5)
+            enemy.y += enemy.dashDirY * 8.5;     // DASH_SPEED(8.5)
             const newEx = room.x + enemy.x;
             const newEy = room.y + enemy.y;
             if (circleHitCircle(newEx, newEy, enemy.radius, player.x, player.y, player.radius)) {
@@ -539,24 +483,24 @@ function updateEnemyChase(room, enemy, cfg, now) {
                 }
                 enemy.dashing = false;
                 enemy.retreating = true;
-                enemy.retreatUntil = now + RETREAT_DURATION;
+                enemy.retreatUntil = now + 1000;  // RETREAT_DURATION(1000)
                 return;
             }
             if (now >= enemy.dashUntil) {
                 enemy.dashing = false;
-                enemy.nextDashAt = now + DASH_COOLDOWN;
+                enemy.nextDashAt = now + 1000;    // DASH_COOLDOWN(1000)
             }
             return;
         }
         return;
     }
     const nearWall =
-        enemy.x < WALL_NEAR_THRESHOLD ||
-        enemy.x > room.width - WALL_NEAR_THRESHOLD ||
-        enemy.y < WALL_NEAR_THRESHOLD ||
-        enemy.y > room.height - WALL_NEAR_THRESHOLD;
-    const wallFactor = nearWall ? WALL_FACTOR_NEAR : 1;
-    const stopDistance = enemy.type === "dash" ? STOP_DISTANCE_DASH : STOP_DISTANCE_DEFAULT;
+        enemy.x < 14 ||                          // WALL_NEAR_THRESHOLD(14)
+        enemy.x > room.width - 14 ||             // WALL_NEAR_THRESHOLD(14)
+        enemy.y < 14 ||                          // WALL_NEAR_THRESHOLD(14)
+        enemy.y > room.height - 14;              // WALL_NEAR_THRESHOLD(14)
+    const wallFactor = nearWall ? 0.7 : 1;       // WALL_FACTOR_NEAR(0.7)
+    const stopDistance = enemy.type === "dash" ? 42 : 60;  // STOP_DISTANCE_DASH(42), STOP_DISTANCE_DEFAULT(60)
     if (dist > stopDistance) {
         const chaseSpeed = enemy.type === "violet" ? cfg.moveSpeed * 1.25 : cfg.moveSpeed * 1.35;
         enemy.x += (dx / dist) * chaseSpeed * wallFactor * recoilFactor;
@@ -593,13 +537,13 @@ function updateEnemies() {
         ) {
             enemy.lastShotTime = now;
             enemy.shotRecoilUntil = now + enemy.shotRecoilMs;
-            const spawnDistance = enemy.radius + BULLET_RADIUS + 2;
+            const spawnDistance = enemy.radius + 4 + 2;   // BULLET_RADIUS(4)
             const dirX = dx / dist;
             const dirY = dy / dist;
             bullets.push({
                 x: ex + dirX * spawnDistance,
                 y: ey + dirY * spawnDistance,
-                radius: BULLET_RADIUS,
+                radius: 4,                               // BULLET_RADIUS
                 vx: dirX * cfg.bulletSpeed,
                 vy: dirY * cfg.bulletSpeed,
                 prevX: ex,
@@ -643,11 +587,11 @@ function explodeViolet(room, enemy) {
         x: ex,
         y: ey,
         radius: 0,
-        maxRadius: VIOLET_BOMB_RADIUS,
-        life: EXPLOSION_LIFE
+        maxRadius: 70,    // VIOLET_BOMB_RADIUS
+        life: 24          // EXPLOSION_LIFE
     });
-    if (circleHitCircle(ex, ey, VIOLET_BOMB_RADIUS, player.x, player.y, player.radius)) {
-        player.health -= VIOLET_BOMB_DAMAGE;
+    if (circleHitCircle(ex, ey, 70, player.x, player.y, player.radius)) {   // VIOLET_BOMB_RADIUS(70)
+        player.health -= 50;   // VIOLET_BOMB_DAMAGE(50)
         if (player.health < 0) {
             player.health = 0;
         }
@@ -661,7 +605,7 @@ function killEnemy(room) {
     }
     const insideRoom = sameRoom(room, player.x, player.y);
     enemy.dead = true;
-    score += SCORE_KILL;
+    score += 100;   // SCORE_KILL
     if (room.lockable && !room.lootCollected) {
         loot += room.lootAmount;
         room.lootCollected = true;
@@ -672,8 +616,8 @@ function killEnemy(room) {
     if (!damageTakenSinceEnter) {
         noDamageKillStreak++;
         if (noDamageKillStreak >= 3) {
-            loot += LOOT_NO_DMG_BONUS;
-            score += SCORE_STREAK_BONUS;
+            loot += 50;    // LOOT_NO_DMG_BONUS
+            score += 50;   // SCORE_STREAK_BONUS
             noDamageKillStreak = 0;
             showQuestToast("Quest Complete: 3 Kills No Damage");
         }
@@ -681,14 +625,14 @@ function killEnemy(room) {
         noDamageKillStreak = 0;
     }
     if (enteredRoomAt && !damageTakenSinceEnter && insideRoom) {
-        loot += LOOT_ROOM_KILL_BONUS;
-        score += SCORE_ROOM_KILL_BONUS;
+        loot += 50;    // LOOT_ROOM_KILL_BONUS
+        score += 50;   // SCORE_ROOM_KILL_BONUS
         enteredRoomAt = Date.now();
         showQuestToast("Quest Complete: Room Kill No Damage");
     }
     if (enemy.type === "dash" && insideRoom) {
-        loot += LOOT_DASH_KILL_BONUS;
-        score += SCORE_DASH_KILL_BONUS;
+        loot += 100;   // LOOT_DASH_KILL_BONUS
+        score += 100;  // SCORE_DASH_KILL_BONUS
         dashKillsInsideRoom++;
         showQuestToast("Quest Complete: Dash Unit Killed");
     }
@@ -703,7 +647,7 @@ function updateBullets() {
         bullet.prevY = bullet.y;
         bullet.x += bullet.vx;
         bullet.y += bullet.vy;
-        if (bullet.owner === "enemy" && bullet.bounces >= ENEMY_BOUNCE_LIMIT) {
+        if (bullet.owner === "enemy" && bullet.bounces >= 2) {   // ENEMY_BOUNCE_LIMIT(2)
             bullets.splice(i, 1);
             continue;
         }
@@ -753,7 +697,7 @@ function updateBullets() {
         }
         for (const room of rooms) {
             resolveBulletAgainstRoom(bullet, room);
-            if (bullet.owner === "enemy" && bullet.bounces >= ENEMY_BOUNCE_LIMIT) {
+            if (bullet.owner === "enemy" && bullet.bounces >= 2) {   // ENEMY_BOUNCE_LIMIT(2)
                 bullets.splice(i, 1);
                 removed = true;
                 break;
@@ -763,8 +707,8 @@ function updateBullets() {
             continue;
         }
     }
-    if (bullets.length > MAX_BULLETS) {
-        bullets.splice(0, bullets.length - MAX_BULLETS);
+    if (bullets.length > 220) {   // MAX_BULLETS(220)
+        bullets.splice(0, bullets.length - 220);
     }
 }
 
@@ -813,8 +757,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "left" &&
-                nextY > room.y + room.height / 2 - DOOR_PAD &&
-                nextY < room.y + room.height / 2 + DOOR_PAD
+                nextY > room.y + room.height / 2 - 25 &&   // DOOR_PAD(25)
+                nextY < room.y + room.height / 2 + 25      // DOOR_PAD(25)
             )
         ) {
             blockedX = true;
@@ -824,8 +768,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "right" &&
-                nextY > room.y + room.height / 2 - DOOR_PAD &&
-                nextY < room.y + room.height / 2 + DOOR_PAD
+                nextY > room.y + room.height / 2 - 25 &&   // DOOR_PAD(25)
+                nextY < room.y + room.height / 2 + 25      // DOOR_PAD(25)
             )
         ) {
             blockedX = true;
@@ -835,8 +779,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "top" &&
-                nextX > room.x + room.width / 2 - DOOR_PAD &&
-                nextX < room.x + room.width / 2 + DOOR_PAD
+                nextX > room.x + room.width / 2 - 25 &&    // DOOR_PAD(25)
+                nextX < room.x + room.width / 2 + 25       // DOOR_PAD(25)
             )
         ) {
             blockedY = true;
@@ -846,8 +790,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "bottom" &&
-                nextX > room.x + room.width / 2 - DOOR_PAD &&
-                nextX < room.x + room.width / 2 + DOOR_PAD
+                nextX > room.x + room.width / 2 - 25 &&    // DOOR_PAD(25)
+                nextX < room.x + room.width / 2 + 25       // DOOR_PAD(25)
             )
         ) {
             blockedY = true;
@@ -860,7 +804,7 @@ function updatePlayer() {
         player.y = nextY;
     }
     player.x = Math.max(player.radius, player.x);
-    player.y = Math.max(HUD_HEIGHT + player.radius, player.y);
+    player.y = Math.max(120 + player.radius, player.y);   // HUD_HEIGHT(120)
     for (const room of rooms) {
         if (
             room.lockable &&
@@ -888,7 +832,7 @@ function showGamePopup(title) {
 function updateExplosions() {
     for (let i = explosions.length - 1; i >= 0; i--) {
         const ex = explosions[i];
-        ex.radius += ex.maxRadius / EXPLOSION_LIFE;
+        ex.radius += ex.maxRadius / 24;   // EXPLOSION_LIFE(24)
         ex.life -= 1;
         if (ex.life <= 0) {
             explosions.splice(i, 1);
@@ -905,7 +849,7 @@ function showQuestToast(message) {
     clearTimeout(showQuestToast.timer);
     showQuestToast.timer = setTimeout(() => {
         questToast.classList.add("hidden");
-    }, QUEST_TOAST_DURATION);
+    }, 2000);   // QUEST_TOAST_DURATION(2000)
 }
 
 function updateQuestHud() {
@@ -966,33 +910,25 @@ function applyStorePurchase(type) {
         return;
     }
     if (type === "speed") {
-        if (loot < STORE_COST_SPEED) {
-            return;
-        }
-        loot -= STORE_COST_SPEED;
-        speedBoostUntil = Date.now() + SPEED_BOOST_DURATION;
+        if (loot < 50) { return; }    // STORE_COST_SPEED(50)
+        loot -= 50;
+        speedBoostUntil = Date.now() + 20000;   // SPEED_BOOST_DURATION(20000)
     }
     if (type === "hp") {
-        if (loot < STORE_COST_HP) {
-            return;
-        }
-        loot -= STORE_COST_HP;
-        player.maxHealth += HP_BOOST_AMOUNT;
-        player.health += HP_BOOST_AMOUNT;
+        if (loot < 100) { return; }   // STORE_COST_HP(100)
+        loot -= 100;
+        player.maxHealth += 100;      // HP_BOOST_AMOUNT(100)
+        player.health += 100;         // HP_BOOST_AMOUNT(100)
     }
     if (type === "damage") {
-        if (loot < STORE_COST_DAMAGE) {
-            return;
-        }
-        loot -= STORE_COST_DAMAGE;
-        damageBoostShots += DAMAGE_BOOST_SHOTS;
+        if (loot < 150) { return; }   // STORE_COST_DAMAGE(150)
+        loot -= 150;
+        damageBoostShots += 3;        // DAMAGE_BOOST_SHOTS(3)
     }
     if (type === "invis") {
-        if (loot < STORE_COST_INVIS) {
-            return;
-        }
-        loot -= STORE_COST_INVIS;
-        invisibilityUntil = Date.now() + INVIS_DURATION;
+        if (loot < 200) { return; }   // STORE_COST_INVIS(200)
+        loot -= 200;
+        invisibilityUntil = Date.now() + 12000;  // INVIS_DURATION(12000)
     }
     updateHud();
 }
@@ -1078,7 +1014,7 @@ function render() {
     }
     for (const explosion of explosions) {
         oCtx.save();
-        oCtx.globalAlpha = Math.max(0, explosion.life / EXPLOSION_LIFE) * 0.35;
+        oCtx.globalAlpha = Math.max(0, explosion.life / 24) * 0.35;   // EXPLOSION_LIFE(24)
         oCtx.fillStyle = "#ff8c00";
         oCtx.beginPath();
         oCtx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
@@ -1109,7 +1045,7 @@ function render() {
         oCtx.lineWidth = 1.5;
         oCtx.setLineDash([4, 4]);
         oCtx.beginPath();
-        oCtx.arc(player.x, player.y, player.radius + 4, 0, Math.PI * 2);
+        oCtx.arc(player.x, player.y, player.radius + 4, 0, Math.PI * 2);   // HALO_EXTRA(10) not used here — original was radius+4
         oCtx.stroke();
         oCtx.restore();
     }
@@ -1127,7 +1063,7 @@ function render() {
     mCtx.globalCompositeOperation = "destination-out";
     const gradient = mCtx.createRadialGradient(
         playerScreenX, playerScreenY, 0,
-        playerScreenX, playerScreenY, TORCH_RADIUS
+        playerScreenX, playerScreenY, 180   // TORCH_RADIUS(180)
     );
     gradient.addColorStop(0, "rgba(0,0,0,1)");
     gradient.addColorStop(0.75, "rgba(0,0,0,0.95)");
@@ -1135,7 +1071,7 @@ function render() {
     mCtx.fillStyle = gradient;
     mCtx.beginPath();
     mCtx.moveTo(playerScreenX, playerScreenY);
-    mCtx.arc(playerScreenX, playerScreenY, TORCH_RADIUS, angle - TORCH_ANGLE, angle + TORCH_ANGLE);
+    mCtx.arc(playerScreenX, playerScreenY, 180, angle - 0.4, angle + 0.4);  // TORCH_RADIUS(180), TORCH_ANGLE(0.4)
     mCtx.closePath();
     mCtx.fill();
     mCtx.restore();
@@ -1143,13 +1079,13 @@ function render() {
     mCtx.globalCompositeOperation = "destination-out";
     const halo = mCtx.createRadialGradient(
         playerScreenX, playerScreenY, 0,
-        playerScreenX, playerScreenY, player.radius + HALO_EXTRA
+        playerScreenX, playerScreenY, player.radius + 10   // HALO_EXTRA(10)
     );
     halo.addColorStop(0, "rgba(0,0,0,1)");
     halo.addColorStop(1, "rgba(0,0,0,0)");
     mCtx.fillStyle = halo;
     mCtx.beginPath();
-    mCtx.arc(playerScreenX, playerScreenY, player.radius + HALO_EXTRA, 0, Math.PI * 2);
+    mCtx.arc(playerScreenX, playerScreenY, player.radius + 10, 0, Math.PI * 2);  // HALO_EXTRA(10)
     mCtx.fill();
     mCtx.restore();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1228,7 +1164,7 @@ canvas.addEventListener("click", (e) => {
         return;
     }
     const now = Date.now();
-    if (now - lastShotTime < SHOOT_COOLDOWN) {
+    if (now - lastShotTime < 700) {   // SHOOT_COOLDOWN(700)
         return;
     }
     lastShotTime = now;
@@ -1238,14 +1174,14 @@ canvas.addEventListener("click", (e) => {
     const dx = point.x - player.x;
     const dy = point.y - player.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const spawnDistance = player.radius + BULLET_RADIUS + 2;
+    const spawnDistance = player.radius + 4 + 2;   // BULLET_RADIUS(4)
     const boosted = damageBoostShots > 0;
     bullets.push({
         x: player.x + (dx / distance) * spawnDistance,
         y: player.y + (dy / distance) * spawnDistance,
-        radius: BULLET_RADIUS,
-        vx: (dx / distance) * BULLET_SPEED,
-        vy: (dy / distance) * BULLET_SPEED,
+        radius: 4,                                     // BULLET_RADIUS
+        vx: (dx / distance) * 8,                      // BULLET_SPEED(8)
+        vy: (dy / distance) * 8,                      // BULLET_SPEED(8)
         prevX: player.x,
         prevY: player.y,
         owner: "player",
