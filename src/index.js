@@ -113,10 +113,10 @@ let generatedRoomKeys = new Set();
 
 let player = {
     x: 20,
-    y: 120 + 20,      // HUD HEIGHT(120) + 20
-    radius: 7,         // PLAYER RADIUS
-    speed: 5,          // PLAYER SPEED
-    health: 200,       // PLAYER HEALTH
+    y: 120 + 20,     
+    radius: 7,         
+    speed: 5,          
+    health: 200,       
     maxHealth: 200     
 };
 
@@ -189,19 +189,19 @@ function makeEnemy(type) {
     const angle = Math.random() * Math.PI * 2;
     return {
         type,
-        x: Math.random() * (110 - 40) + 20,   // ROOM SIZE(110)
-        y: Math.random() * (110 - 40) + 20,   // ROO SIZE(110)
-        radius: 7,                              // ENEMY RADIUS
+        x: Math.random() * (110 - 40) + 20,   
+        y: Math.random() * (110 - 40) + 20,   
+        radius: 7,                              
         health: cfg.hp,
         maxHealth: cfg.hp,
         dead: false,
         vx: Math.cos(angle) * cfg.moveSpeed,
         vy: Math.sin(angle) * cfg.moveSpeed,
-        nextWanderChange: Date.now() + randRange(700, 1600),  // WANDER CHANGE MIN(700), WANDER CHANGE MAX(1600)
+        nextWanderChange: Date.now() + randRange(700, 1600),  
         shootCooldown: cfg.shootCooldown,
         lastShotTime: 0,
         shotRecoilUntil: 0,
-        shotRecoilMs: 400,                      // RECOIL MS
+        shotRecoilMs: 400,                      
         alerted: false,
         dashing: false,
         dashUntil: 0,
@@ -209,8 +209,8 @@ function makeEnemy(type) {
         retreating: false,
         retreatUntil: 0,
         visibleRange: cfg.visibleRange || 9999,
-        bombRadius: type === "violet" ? 70 : 0,    // VIOLET BOMB RADIUS(70)
-        bombDamage: type === "violet" ? 50 : 0     // VIOLET BOMB DAMAGE(50)
+        bombRadius: type === "violet" ? 70 : 0,    
+        bombDamage: type === "violet" ? 50 : 0    
     };
 }
 
@@ -222,10 +222,10 @@ function createRoom(col, row) {
     const hasLoot = Math.random() < 0.3;
     const type = pickEnemyType();
     return {
-        x: 80 + col * (110 + 55),     // WORLD X(80), ROOM SIZE(110), GAP(55) 
-        y: 155 + row * (110 + 55),    // WORLD Y = HUD HEIGHT(120)+35=155, WORLD STEP=165
-        width: 110,                    // ROOM SIZE
-        height: 110,                   // ROOM SIZE
+        x: 80 + col * (110 + 55),     
+        y: 155 + row * (110 + 55),    
+        width: 110,                   
+        height: 110,                   
         doorSide: randChoice(["top", "bottom", "left", "right"]),
         lockable: hasLoot,
         lockActive: false,
@@ -251,13 +251,13 @@ function generateRooms() {
     generatedRoomKeys.clear();
     worldCols = 0;
     worldRows = 0;
-    for (let row = 0; row < 4; row++) {        // INITIAL ROWS(4)
-        for (let col = 0; col < 4; col++) {    // INITIAL COLS(4)
+    for (let row = 0; row < 4; row++) {        
+        for (let col = 0; col < 4; col++) {    
             addRoom(col, row);
         }
     }
-    worldCols = 4;   // INITIAL COLS
-    worldRows = 4;   // INITIAL ROWS
+    worldCols = 4;   
+    worldRows = 4;   
     updateCamera();
 }
 
@@ -285,8 +285,8 @@ function ensureInfiniteRooms() {
 }
 
 function updateCamera() {
-    cameraX = Math.max(0, player.x - canvas.width * 0.35);   // CAMERA X(0.35)
-    cameraY = Math.max(0, player.y - canvas.height * 0.35);  // CAMERA Y(0.35)
+    cameraX = Math.max(0, player.x - canvas.width * 0.35);  
+    cameraY = Math.max(0, player.y - canvas.height * 0.35);  
 }
 
 function getEnemyCenter(room) {
@@ -414,24 +414,24 @@ function canEnemySeePlayer(room, tx, ty) {
     const midX = room.x + room.width / 2;
     const midY = room.y + room.height / 2;
     if (room.doorSide === "left") {
-        return tx < room.x && ty > midY - 40 && ty < midY + 40;       // DOOR HALF(40)
+        return tx < room.x && ty > midY - 40 && ty < midY + 40;     
     }
     if (room.doorSide === "right") {
-        return tx > room.x + room.width && ty > midY - 40 && ty < midY + 40;  // DOOR HALF(40)
+        return tx > room.x + room.width && ty > midY - 40 && ty < midY + 40;  
     }
     if (room.doorSide === "top") {
-        return ty < room.y && tx > midX - 40 && tx < midX + 40;       // DOOR HALF(40)
+        return ty < room.y && tx > midX - 40 && tx < midX + 40;       
     }
     if (room.doorSide === "bottom") {
-        return ty > room.y + room.height && tx > midX - 40 && tx < midX + 40; // DOOR HALF(40)
+        return ty > room.y + room.height && tx > midX - 40 && tx < midX + 40; 
     }
     return false;
 }
 
 function updateEnemyWander(room, enemy, cfg, now) {
-    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   // RECOIL(0.35)
+    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   
     if (now >= enemy.nextWanderChange) {
-        enemy.nextWanderChange = now + randRange(700, 1600);         // WANDER MIN(700), WANDER MAX(1600)
+        enemy.nextWanderChange = now + randRange(700, 1600);        
         const ang = Math.random() * Math.PI * 2;
         enemy.vx = Math.cos(ang) * cfg.moveSpeed;
         enemy.vy = Math.sin(ang) * cfg.moveSpeed;
@@ -441,7 +441,7 @@ function updateEnemyWander(room, enemy, cfg, now) {
 }
 
 function updateEnemyChase(room, enemy, cfg, now) {
-    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   // RECOIL(0.35)
+    const recoilFactor = now < enemy.shotRecoilUntil ? 0.35 : 1;   
     const { x: ex, y: ey } = getEnemyCenter(room);
     const dx = player.x - ex;
     const dy = player.y - ey;
@@ -461,19 +461,19 @@ function updateEnemyChase(room, enemy, cfg, now) {
             enemy.y += (awayY / awayDist) * 4.5;
             if (now >= enemy.retreatUntil) {
                 enemy.retreating = false;
-                enemy.nextDashAt = now + 1000;   // DASH COOLDOWN(1000)
+                enemy.nextDashAt = now + 1000;  
             }
             return;
         }
         if (!enemy.dashing && now >= enemy.nextDashAt) {
             enemy.dashing = true;
-            enemy.dashUntil = now + 250;          // DASH DURATION(250)
+            enemy.dashUntil = now + 250;          
             enemy.dashDirX = dx / dist;
             enemy.dashDirY = dy / dist;
         }
         if (enemy.dashing) {
-            enemy.x += enemy.dashDirX * 8.5;     // DASH SPEED(8.5)
-            enemy.y += enemy.dashDirY * 8.5;     // DASH SPEED(8.5)
+            enemy.x += enemy.dashDirX * 8.5;     
+            enemy.y += enemy.dashDirY * 8.5;     
             const newEx = room.x + enemy.x;
             const newEy = room.y + enemy.y;
             if (circleHitCircle(newEx, newEy, enemy.radius, player.x, player.y, player.radius)) {
@@ -483,24 +483,24 @@ function updateEnemyChase(room, enemy, cfg, now) {
                 }
                 enemy.dashing = false;
                 enemy.retreating = true;
-                enemy.retreatUntil = now + 1000;  // RETREAT DURATION(1000)
+                enemy.retreatUntil = now + 1000;  
                 return;
             }
             if (now >= enemy.dashUntil) {
                 enemy.dashing = false;
-                enemy.nextDashAt = now + 1000;    // DASH COOLDOWN(1000)
+                enemy.nextDashAt = now + 1000;    
             }
             return;
         }
         return;
     }
     const nearWall =
-        enemy.x < 14 ||                          // WALL THRESHOLD(14)
+        enemy.x < 14 ||                          
         enemy.x > room.width - 14 ||            
         enemy.y < 14 ||                         
         enemy.y > room.height - 14;              
-    const wallFactor = nearWall ? 0.7 : 1;       // WALL NEAR(0.7)
-    const stopDistance = enemy.type === "dash" ? 42 : 60;  // STOP DISTANCE DASH(42), STOP DISTANCE DEFAULT(60)
+    const wallFactor = nearWall ? 0.7 : 1;       
+    const stopDistance = enemy.type === "dash" ? 42 : 60;  
     if (dist > stopDistance) {
         const chaseSpeed = enemy.type === "violet" ? cfg.moveSpeed * 1.25 : cfg.moveSpeed * 1.35;
         enemy.x += (dx / dist) * chaseSpeed * wallFactor * recoilFactor;
@@ -537,13 +537,13 @@ function updateEnemies() {
         ) {
             enemy.lastShotTime = now;
             enemy.shotRecoilUntil = now + enemy.shotRecoilMs;
-            const spawnDistance = enemy.radius + 4 + 2;   // BULLET RADIUS(4)
+            const spawnDistance = enemy.radius + 4 + 2;   
             const dirX = dx / dist;
             const dirY = dy / dist;
             bullets.push({
                 x: ex + dirX * spawnDistance,
                 y: ey + dirY * spawnDistance,
-                radius: 4,                               // BULLET RADIUS
+                radius: 4,                           
                 vx: dirX * cfg.bulletSpeed,
                 vy: dirY * cfg.bulletSpeed,
                 prevX: ex,
@@ -587,11 +587,11 @@ function explodeViolet(room, enemy) {
         x: ex,
         y: ey,
         radius: 0,
-        maxRadius: 70,    // VIOLET BOMB RADIUS
-        life: 24          // EXPLOSION LIFE
+        maxRadius: 70,    
+        life: 24          
     });
-    if (circleHitCircle(ex, ey, 70, player.x, player.y, player.radius)) {   // VIOLET BOMB RADIUS(70)
-        player.health -= 50;   // VIOLET BOMB DAMAGE(50)
+    if (circleHitCircle(ex, ey, 70, player.x, player.y, player.radius)) {   
+        player.health -= 50;   
         if (player.health < 0) {
             player.health = 0;
         }
@@ -757,8 +757,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "left" &&
-                nextY > room.y + room.height / 2 - 25 &&   // DOOR PAD(25)
-                nextY < room.y + room.height / 2 + 25      // DOOR PAD(25)
+                nextY > room.y + room.height / 2 - 25 &&   
+                nextY < room.y + room.height / 2 + 25     
             )
         ) {
             blockedX = true;
@@ -768,8 +768,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "right" &&
-                nextY > room.y + room.height / 2 - 25 &&   // DOOR PAD(25)
-                nextY < room.y + room.height / 2 + 25      // DOOR PAD(25)
+                nextY > room.y + room.height / 2 - 25 &&   
+                nextY < room.y + room.height / 2 + 25     
             )
         ) {
             blockedX = true;
@@ -779,8 +779,8 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "top" &&
-                nextX > room.x + room.width / 2 - 25 &&    // DOOR PAD(25)
-                nextX < room.x + room.width / 2 + 25       // DOOR PAD(25)
+                nextX > room.x + room.width / 2 - 25 &&   
+                nextX < room.x + room.width / 2 + 25       
             )
         ) {
             blockedY = true;
@@ -790,7 +790,7 @@ function updatePlayer() {
             !(
                 doorsOpen &&
                 room.doorSide === "bottom" &&
-                nextX > room.x + room.width / 2 - 25 &&    // DOOR PAD(25)
+                nextX > room.x + room.width / 2 - 25 &&    
                 nextX < room.x + room.width / 2 + 25       // DOOR PAD(25)
             )
         ) {
@@ -804,7 +804,7 @@ function updatePlayer() {
         player.y = nextY;
     }
     player.x = Math.max(player.radius, player.x);
-    player.y = Math.max(120 + player.radius, player.y);   // HUD HEIGHT(120)
+    player.y = Math.max(120 + player.radius, player.y);   
     for (const room of rooms) {
         if (
             room.lockable &&
@@ -832,7 +832,7 @@ function showGamePopup(title) {
 function updateExplosions() {
     for (let i = explosions.length - 1; i >= 0; i--) {
         const ex = explosions[i];
-        ex.radius += ex.maxRadius / 24;   // EXPLOSION LIFE(24)
+        ex.radius += ex.maxRadius / 24;   
         ex.life -= 1;
         if (ex.life <= 0) {
             explosions.splice(i, 1);
@@ -849,7 +849,7 @@ function showQuestToast(message) {
     clearTimeout(showQuestToast.timer);
     showQuestToast.timer = setTimeout(() => {
         questToast.classList.add("hidden");
-    }, 2000);   // QUEST_TOAST_DURATION(2000)
+    }, 2000);   
 }
 
 function updateQuestHud() {
@@ -910,25 +910,25 @@ function applyStorePurchase(type) {
         return;
     }
     if (type === "speed") {
-        if (loot < 50) { return; }    // STORE COST SPEED(50)
+        if (loot < 50) { return; }    
         loot -= 50;
-        speedBoostUntil = Date.now() + 20000;   // SPEED BOOST DURATION(20000)
+        speedBoostUntil = Date.now() + 20000;   
     }
     if (type === "hp") {
-        if (loot < 100) { return; }   // STORE COST HP(100)
+        if (loot < 100) { return; }   
         loot -= 100;
-        player.maxHealth += 100;      // HP BOOST AMOUNT(100)
-        player.health += 100;         // HP BOOST AMOUNT(100)
+        player.maxHealth += 100;      
+        player.health += 100;         
     }
     if (type === "damage") {
-        if (loot < 150) { return; }   // STORE COST DAMAGE(150)
+        if (loot < 150) { return; }   
         loot -= 150;
-        damageBoostShots += 3;        // DAMAGE BOOST SHOTS(3)
+        damageBoostShots += 3;        
     }
     if (type === "invis") {
-        if (loot < 200) { return; }   // STORE COST INVIS(200)
+        if (loot < 200) { return; }   
         loot -= 200;
-        invisibilityUntil = Date.now() + 12000;  // INVIS DURATION(12000)
+        invisibilityUntil = Date.now() + 12000;  
     }
     updateHud();
 }
@@ -1164,7 +1164,7 @@ canvas.addEventListener("click", (e) => {
         return;
     }
     const now = Date.now();
-    if (now - lastShotTime < 700) {   // SHOOT COOLDOWN(700)
+    if (now - lastShotTime < 700) {   
         return;
     }
     lastShotTime = now;
@@ -1174,14 +1174,14 @@ canvas.addEventListener("click", (e) => {
     const dx = point.x - player.x;
     const dy = point.y - player.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const spawnDistance = player.radius + 4 + 2;   // BULLET RADIUS(4)
+    const spawnDistance = player.radius + 4 + 2;   
     const boosted = damageBoostShots > 0;
     bullets.push({
         x: player.x + (dx / distance) * spawnDistance,
         y: player.y + (dy / distance) * spawnDistance,
-        radius: 4,                                     // BULLET RADIUS
-        vx: (dx / distance) * 8,                      // BULLET SPEED(8)
-        vy: (dy / distance) * 8,                      // BULLET SPEED(8)
+        radius: 4,                               
+        vx: (dx / distance) * 8,                 
+        vy: (dy / distance) * 8,                
         prevX: player.x,
         prevY: player.y,
         owner: "player",
